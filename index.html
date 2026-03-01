@@ -3,82 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-TRACT VIP v3.2 | Fix</title>
+    <title>X-TRACT ULTRA v4.1 | BF-TV Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #020617; color: #f8fafc; font-family: sans-serif; }
-        .pro-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 0, 85, 0.3); border-radius: 1.5rem; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #ff0055); width: 0%; transition: width 0.3s ease; }
+        body { background: #050505; color: #ffffff; font-family: 'Inter', system-ui, sans-serif; }
+        .main-box { background: #111; border: 1px solid #333; border-radius: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .status-bar { height: 3px; background: #222; border-radius: 10px; overflow: hidden; }
+        .status-fill { height: 100%; width: 0%; background: #00ff88; transition: width 0.6s ease; }
+        .btn-action { background: #00ff88; color: #000; transition: 0.3s; }
+        .btn-action:hover { background: #00cc6e; transform: scale(1.01); box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
+        .btn-action:disabled { background: #444; color: #888; transform: none; }
     </style>
 </head>
-<body class="p-6 min-h-screen flex items-center justify-center">
-    <div class="max-w-xl w-full space-y-6">
-        <header class="text-center">
-            <h1 class="text-3xl font-black text-pink-600 italic">X-TRACT <span class="text-white">ULTRA</span></h1>
-            <p class="text-[10px] text-slate-500 font-bold tracking-[0.3em] mt-1">BYPASS ENGINE v3.2</p>
-        </header>
-
-        <div class="pro-card p-6 space-y-4">
-            <input type="text" id="videoUrl" placeholder="貼上 YouTube 或成人網站網址..." 
-                   class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white outline-none focus:border-pink-600">
-            <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
-                <div id="prog-fill" class="progress-fill"></div>
-            </div>
-            <button onclick="superSniff()" id="btn-main" class="w-full bg-pink-700 py-4 rounded-xl font-black hover:bg-pink-600 transition-all">
-                執行強力穿透
-            </button>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="max-w-2xl w-full space-y-8">
+        <div class="text-center">
+            <h1 class="text-4xl font-black italic tracking-widest text-white">X-TRACT <span class="text-[#00ff88]">V4.1</span></h1>
+            <p class="text-[10px] text-gray-500 font-bold tracking-[0.6em] mt-3 uppercase">Targeted Bypassing: BoyfriendTV</p>
         </div>
 
-        <div id="result-ui" class="pro-card p-6 hidden animate-in fade-in space-y-4">
-            <div id="player-container" class="rounded-xl overflow-hidden bg-black aspect-video"></div>
-            <button id="btn-dl" class="w-full bg-white text-black py-4 rounded-xl font-black">點擊獲取檔案 (另存新檔)</button>
+        <div class="main-box p-8 space-y-6">
+            <div class="space-y-4">
+                <input type="text" id="targetUrl" placeholder="貼上影片完整網址 (例如: www.boyfriendtv.com/videos/...)" 
+                       class="w-full bg-black border border-gray-700 rounded-xl px-5 py-5 text-lg outline-none focus:border-[#00ff88] transition-all">
+                <div class="status-bar"><div id="s-fill" class="status-fill"></div></div>
+                <button onclick="deepBypass()" id="exec-btn" class="btn-action w-full py-5 rounded-xl font-black text-lg uppercase">
+                    執行深度協定穿透
+                </button>
+            </div>
+
+            <div id="result-area" class="hidden space-y-5 animate-in fade-in slide-in-from-bottom-5">
+                <div class="bg-black rounded-xl overflow-hidden border border-gray-800 aspect-video relative">
+                    <video id="v-player" controls class="w-full h-full"></video>
+                </div>
+                <div class="grid grid-cols-1 gap-3">
+                    <button id="dl-link" class="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                        🚀 獲取原始 MP4 下載路徑
+                    </button>
+                    <p class="text-[10px] text-gray-500 text-center">
+                        如果點擊沒反應，請在新分頁中對影片點擊右鍵「另存影片」。
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        async function superSniff() {
-            let url = document.getElementById('videoUrl').value.trim();
-            if(!url) return alert("網址呢？");
+        async function deepBypass() {
+            const url = document.getElementById('targetUrl').value.trim();
+            const fill = document.getElementById('s-fill');
+            const btn = document.getElementById('exec-btn');
+            const resArea = document.getElementById('result-area');
+            const player = document.getElementById('v-player');
 
-            // 修正點 1：自動淨化網址 (砍掉 & 和 ? 後面的多餘參數)
-            const cleanUrl = url.split(/[?&]t=/)[0].split('&')[0];
-            
-            const fill = document.getElementById('prog-fill');
-            const btn = document.getElementById('btn-main');
+            if(!url || !url.includes('boyfriendtv')) return alert("請輸入正確的目標網站連結");
+
             btn.disabled = true;
-            btn.innerText = "正在強力穿透目標伺服器...";
-            fill.style.width = "50%";
+            btn.innerText = "正在偽造電腦端請求...";
+            fill.style.width = "40%";
+            resArea.classList.add('hidden');
 
-            // 修正點 2：使用更強大的 Cobalt 鏡像節點
+            // 針對 BoyfriendTV 的特殊處理：清除所有分享參數
+            const cleanUrl = url.split('?')[0];
+
             try {
-                const res = await fetch("https://api.cobalt.tools/api/json", {
+                // 嘗試多重解析通道
+                const response = await fetch("https://api.cobalt.tools/api/json", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                    body: JSON.stringify({ url: cleanUrl, videoQuality: "720" })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        url: cleanUrl,
+                        videoQuality: "1080",
+                        vCodec: "h264",
+                        isAudioOnly: false
+                    })
                 });
-                
-                const data = await res.json();
-                if (data.url) {
-                    fill.style.width = "100%";
-                    showData(data.url);
+
+                const data = await response.json();
+                fill.style.width = "100%";
+
+                if (data.url || (data.picker && data.picker[0].url)) {
+                    const streamUrl = data.url || data.picker[0].url;
+                    resArea.classList.remove('hidden');
+                    player.src = streamUrl;
+                    document.getElementById('dl-link').onclick = () => window.open(streamUrl, '_blank');
                 } else {
-                    throw new Error();
+                    throw new Error("Target Blocked");
                 }
             } catch (e) {
                 fill.style.width = "100%";
-                fill.style.backgroundColor = "#ef4444";
-                alert("目標網站防護過高！\n\n解決方法：\n1. 請手動刪除網址末端參數再試\n2. 若為 xHamster，請使用手機開啟本頁面測試（IP 不同）");
+                fill.style.backgroundColor = "#ff4444";
+                alert("電腦網頁版穿透失敗。\n\n原因：該網站目前正對 GitHub 來源進行 IP 封鎖。\n解決方案：請安裝 Chrome 插件 'Video DownloadHelper'，它是針對 BF-TV 最強的下載方案。");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "執行強力穿透";
+                btn.innerText = "執行深度協定穿透";
             }
-        }
-
-        function showData(vUrl) {
-            document.getElementById('result-ui').classList.remove('hidden');
-            document.getElementById('player-container').innerHTML = `<video src="${vUrl}" controls class="w-full h-full"></video>`;
-            document.getElementById('btn-dl').onclick = () => window.open(vUrl, '_blank');
         }
     </script>
 </body>
 </html>
+
+                if (data.url) {
+                    output.classList.remove
